@@ -19,15 +19,20 @@
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      min-height: 100svh;
-      display: grid;
-      place-items: center;
+      min-height: 100%;
       background: radial-gradient(circle at top, var(--bg2), var(--bg1));
-      font-family: system-ui, sans-serif;
-      overflow: hidden;
-      padding: 16px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      min-height: 100vh;
     }
 
     /* FULL-SCREEN CONFETTI CANVAS */
@@ -40,14 +45,48 @@
       z-index: 9999;
     }
 
+    /* FLOATING HEARTS */
+    .heart {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      background: #ff3b7a;
+      transform: rotate(45deg);
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .heart:before, .heart:after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff3b7a;
+      border-radius: 50%;
+    }
+
+    .heart:before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart:after {
+      top: 0;
+      left: -10px;
+    }
+
     .card {
       width: min(720px, 92vw);
-      padding: 26px 22px;
+      padding: 30px 25px;
       background: var(--card);
       backdrop-filter: blur(10px);
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 18px 60px rgba(0,0,0,.15);
+      position: relative;
+      z-index: 10;
+      margin: 20px auto;
     }
 
     .art {
@@ -60,6 +99,8 @@
     h1 {
       font-size: clamp(26px, 4vw, 44px);
       margin: 12px 0 18px;
+      color: #333;
+      line-height: 1.3;
     }
 
     .button-zone {
@@ -83,7 +124,7 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.14);
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      transition: transform .12s ease, background .12s ease;
+      transition: transform .12s ease, background .12s ease, left 0.2s ease, top 0.2s ease;
     }
 
     #yesBtn {
@@ -91,7 +132,10 @@
       background: var(--yes);
       color: #fff;
     }
-    #yesBtn:hover { background: var(--yesHover); }
+    #yesBtn:hover { 
+      background: var(--yesHover);
+      transform: translateY(-50%) scale(1.05);
+    }
 
     #noBtn {
       left: 62%;
@@ -103,6 +147,7 @@
       margin-top: 10px;
       font-size: 13px;
       opacity: .7;
+      min-height: 20px;
     }
 
     .result {
@@ -114,17 +159,64 @@
     .result h2 {
       font-size: clamp(30px, 4.5vw, 46px);
       margin: 10px 0;
+      color: #ff1f68;
+    }
+
+    .result-message {
+      font-size: 18px;
+      margin: 20px 0;
+      color: #ff1f68;
+      line-height: 1.5;
     }
 
     .fireworks {
       width: min(380px, 90vw);
-      margin: 0 auto;
+      margin: 10px auto;
       display: block;
+      border-radius: 10px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    #countdown {
+      margin-top: 25px;
+      padding: 15px;
+      background: linear-gradient(135deg, #ffd6e7, #ffb8d9);
+      border-radius: 15px;
+      display: none;
+      animation: slideUp 0.5s ease;
+    }
+
+    #countdown h3 {
+      margin: 0 0 10px 0;
+      color: #ff1f68;
+      font-size: 18px;
+    }
+
+    #countdown-timer {
+      font-size: 24px;
+      font-weight: bold;
+      color: #d81b60;
     }
 
     @keyframes pop {
       from { transform: scale(.96); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
     }
   </style>
 </head>
@@ -174,29 +266,70 @@
     <h1>MaGodide, sthandwa sika Mhayise, will you be my valentine?</h1>
 
     <section class="button-zone" id="zone">
-      <button id="yesBtn">Yes</button>
-      <button id="noBtn">No</button>
+      <button id="yesBtn">Yebo</button>
+      <button id="noBtn">Cho</button>
     </section>
 
     <!-- HINT -->
-    <div class="hint" id="hint">“No” seems a bit shy 😈</div>
+    <div class="hint" id="hint">Try catching that other button... I dare you</div>
 
     <section class="result" id="result">
-      <h2>YAY! 🎉</h2>
+      <h2>Nakhokee! 🎉</h2>
+      <p class="result-message">
+        Ngiyabonga MaMphemba, MaSompisi, MaGodide 💖<br>
+        To more love, happiness and annoying you forever!
+      </p>
+      <!-- Fixed GIF with multiple sources for reliability -->
       <img
         class="fireworks"
-        src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
-        alt="Fireworks"
+        src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3VnbDQ4b3d0aXZ3bmx1eXBzZDFlMGZ4NzB1NzdzNHFlcDl0NnFtayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26ufdipQqU2lhNA4g/giphy.gif"
+        alt="Fireworks Celebration"
+        onerror="this.onerror=null; this.src='https://media3.giphy.com/media/26ufnwz3wUliSI6A0/giphy.gif?cid=790b76117ugl48owtivwnluupsd1e0fx70u77s4qep9t6qmk&ep=v1_gifs_search&rid=giphy.gif&ct=g'"
       />
     </section>
+
+    <!-- COUNTDOWN -->
+    <div id="countdown">
+      <h3>Counting down to our special day! ⏳</h3>
+      <div id="countdown-timer"></div>
+    </div>
   </main>
 
+  <!-- BACKGROUND MUSIC - Replace with YOUR song! -->
+  <audio id="bgMusic" loop preload="auto">
+    <!-- ⭐⭐⭐ REPLACE THIS LINE WITH YOUR SONG LINK ⭐⭐⭐ -->
+    <source src="https://files.catbox.moe/jg5imq.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
+    // DOM Elements
     const zone = document.getElementById("zone");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const result = document.getElementById("result");
     const hint = document.getElementById("hint");
+    const bgMusic = document.getElementById("bgMusic");
+    const countdown = document.getElementById("countdown");
+    const countdownTimer = document.getElementById("countdown-timer");
+
+    // State variables
+    let musicPlaying = false;
+    let yesScale = 1;
+    let nervousInterval;
+    let messageIndex = 0;
+    const noMessages = [
+      "Are you sure? 😢",
+      "Think about it! 💭",
+      "Yehhen bakithi 💀",
+      "Is khant be, ngeke! 😔",
+      "Cel'ithuba 🥺",
+      "Pretty please? 🥰",
+      "Hau lentombazane! 😭 ",
+      "You know you want to! 😉",
+      "Khuzeka bo 🫣",
+      "Don't break my heart! 💔",
+      "Ay kulungile ke 🥲"
+    ];
 
     /* ---------- CONFETTI ---------- */
     const confettiCanvas = document.getElementById("confettiCanvas");
@@ -241,10 +374,53 @@
           origin: { x: 0.5, y: 0.55 }
         });
       }, 300);
+
+      // More celebration
+      setTimeout(() => {
+        confettiInstance({
+          particleCount: 100,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confettiInstance({
+          particleCount: 100,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 500);
     }
 
+    /* ---------- FLOATING HEARTS ---------- */
+    function createFloatingHearts() {
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.top = '100vh';
+          heart.style.opacity = Math.random() * 0.3 + 0.1;
+          heart.style.scale = Math.random() * 0.5 + 0.5;
+          document.body.appendChild(heart);
+          
+          // Animate
+          heart.animate([
+            { transform: 'translateY(0) rotate(45deg)', opacity: parseFloat(heart.style.opacity) },
+            { transform: `translateY(-${window.innerHeight + 100}px) rotate(405deg)`, opacity: 0 }
+          ], {
+            duration: Math.random() * 4000 + 3000,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+          }).onfinish = () => heart.remove();
+        }, i * 300);
+      }
+    }
+
+    // Start hearts
+    createFloatingHearts();
+    setInterval(createFloatingHearts, 10000);
+
     /* ---------- YES BUTTON GROWS ---------- */
-    let yesScale = 1;
     function growYes() {
       yesScale = Math.min(2.2, yesScale + 0.1);
       yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
@@ -259,25 +435,48 @@
       const z = zone.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
 
+      // Calculate distance and direction
       let dx = (b.left + b.width / 2) - px;
       let dy = (b.top + b.height / 2) - py;
       let mag = Math.hypot(dx, dy) || 1;
-      dx /= mag;
-      dy /= mag;
+      
+      // Make it move faster when cursor is closer
+      const strength = Math.max(1, (140 - mag) / 10) * 1.5;
+      dx = (dx / mag) * strength * 100;
+      dy = (dy / mag) * strength * 100;
 
-      let newLeft = (b.left - z.left) + dx * 150;
-      let newTop  = (b.top - z.top) + dy * 150;
+      let newLeft = (b.left - z.left) + dx;
+      let newTop = (b.top - z.top) + dy;
 
+      // Keep within bounds
       newLeft = clamp(newLeft, 0, z.width - b.width);
-      newTop  = clamp(newTop, 0, z.height - b.height);
+      newTop = clamp(newTop, 0, z.height - b.height);
 
       noBtn.style.left = newLeft + "px";
       noBtn.style.top = newTop + "px";
-      noBtn.style.transform = "none";
+      
+      // Add a little rotation for fun
+      const rotation = Math.sin(Date.now() / 200) * 5;
+      noBtn.style.transform = `rotate(${rotation}deg)`;
 
       growYes();
     }
 
+    // Add nervous movement to the "No" button
+    function startNervousMovement() {
+      nervousInterval = setInterval(() => {
+        if (Math.random() > 0.7) {
+          const b = noBtn.getBoundingClientRect();
+          const z = zone.getBoundingClientRect();
+          const newLeft = clamp(b.left + Math.random() * 20 - 10, 0, z.width - b.width);
+          const newTop = clamp(b.top + Math.random() * 20 - 10, 0, z.height - b.height);
+          noBtn.style.left = (newLeft - z.left) + "px";
+          noBtn.style.top = (newTop - z.top) + "px";
+        }
+      }, 500);
+    }
+
+    // Event listeners for "No" button interaction
     zone.addEventListener("pointermove", e => {
       const b = noBtn.getBoundingClientRect();
       const d = Math.hypot(
@@ -287,20 +486,112 @@
       if (d < 140) moveNo(e.clientX, e.clientY);
     });
 
-    noBtn.addEventListener("click", e => e.preventDefault());
+    noBtn.addEventListener("click", e => {
+      e.preventDefault();
+      hint.textContent = "I knew you'd come around! 😄";
+    });
+
+    // Add messages when hovering over "No"
+    noBtn.addEventListener('mouseenter', () => {
+      hint.textContent = noMessages[messageIndex];
+      messageIndex = (messageIndex + 1) % noMessages.length;
+    });
+
+    /* ---------- MUSIC FUNCTION ---------- */
+    function playMusic() {
+      bgMusic.volume = 0.5;
+      bgMusic.play().then(() => {
+        musicPlaying = true;
+      }).catch(error => {
+        console.log("Music play failed:", error);
+        // Try one more time with user interaction flag
+        setTimeout(() => {
+          bgMusic.play().catch(e => console.log("Second attempt failed:", e));
+        }, 1000);
+      });
+    }
 
     /* ---------- YES CLICK ---------- */
     yesBtn.addEventListener("click", () => {
       zone.style.display = "none";
-      hint.style.display = "none";     // HIDE THE HINT
+      hint.style.display = "none";
       result.style.display = "block";
+      
+      // Change the result text
+      result.querySelector('h2').innerHTML = `Au Nakhokeee! 🕺🏽🎉<br><small style="font-size: 20px;">You've made my day! 💝</small>`;
+      
       resizeConfettiCanvas();
       fullScreenConfetti();
+      
+      // Stop nervous movement
+      if (nervousInterval) clearInterval(nervousInterval);
+      
+      // Auto-play music when she says yes
+      setTimeout(() => {
+        playMusic();
+      }, 500);
+      
+      // Show countdown after a delay
+      setTimeout(() => {
+        countdown.style.display = "block";
+        updateCountdown();
+        setInterval(updateCountdown, 60000); // Update every minute
+        
+        // Scroll to bottom to show everything
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 1000);
+      }, 2000);
     });
+
+    /* ---------- COUNTDOWN ---------- */
+    function updateCountdown() {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      let valentines = new Date(currentYear, 1, 14); // February 14 (month is 0-indexed)
+      
+      // If Valentine's has passed this year, use next year
+      if (now > valentines) {
+        valentines.setFullYear(currentYear + 1);
+      }
+      
+      const diff = valentines - now;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      countdownTimer.innerHTML = 
+        `${days} days, ${hours} hours, ${minutes} minutes`;
+    }
+
+    /* ---------- INITIALIZE ---------- */
+    // Start nervous movement for "No" button
+    startNervousMovement();
+    
+    // Add initial pulse animation to "Yes" button
+    yesBtn.classList.add('pulse');
+    
+    // Preload music for faster playback
+    bgMusic.load();
+    
+    // Make page scrollable
+    document.body.style.minHeight = '100vh';
+    
+    // Register user interaction for autoplay policies
+    // (Required for music to auto-play when she says yes)
+    document.addEventListener('click', function initAutoplay() {
+      // Just playing and pausing immediately to register user interaction
+      bgMusic.play().then(() => {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+      }).catch(() => {
+        // Ignore errors, we just needed user interaction
+      });
+      document.removeEventListener('click', initAutoplay);
+    }, { once: true });
   </script>
 </body>
 </html>
-
-
-
-
