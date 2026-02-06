@@ -48,32 +48,32 @@
     /* FLOATING HEARTS */
     .heart {
       position: fixed;
-      width: 20px;
-      height: 20px;
       background: #ff3b7a;
       transform: rotate(45deg);
-      z-index: -1;
-      opacity: 0.3;
       pointer-events: none;
+      z-index: 1;
+      will-change: transform;
+      filter: blur(0.3px) drop-shadow(0 0 6px rgba(255, 59, 122, 0.35));
     }
 
-    .heart:before, .heart:after {
+    .heart::before,
+    .heart::after {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
       background: #ff3b7a;
       border-radius: 50%;
+      width: 100%;
+      height: 100%;
     }
 
-    .heart:before {
-      top: -10px;
+    .heart::before {
+      top: -50%;
       left: 0;
     }
 
-    .heart:after {
+    .heart::after {
+      left: -50%;
       top: 0;
-      left: -10px;
     }
 
     .card {
@@ -106,15 +106,15 @@
     .button-zone {
       position: relative;
       width: min(520px, 92%);
-      height: 150px;
+      height: 220px;
       margin: 0 auto;
       touch-action: none;
     }
 
     button {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 20px;
+      transform: none;
       padding: 16px 24px;
       font-size: 18px;
       font-weight: 800;
@@ -144,7 +144,7 @@
     }
 
     .hint {
-      margin-top: 10px;
+      margin-top: 16px;
       font-size: 13px;
       opacity: .7;
       min-height: 20px;
@@ -392,39 +392,138 @@
       }, 500);
     }
 
-    /* ---------- FLOATING HEARTS ---------- */
-    function createFloatingHearts() {
-      for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-          const heart = document.createElement('div');
-          heart.className = 'heart';
-          heart.style.left = Math.random() * 100 + 'vw';
-          heart.style.top = '100vh';
-          heart.style.opacity = Math.random() * 0.3 + 0.1;
-          heart.style.scale = Math.random() * 0.5 + 0.5;
-          document.body.appendChild(heart);
-          
-          // Animate
-          heart.animate([
-            { transform: 'translateY(0) rotate(45deg)', opacity: parseFloat(heart.style.opacity) },
-            { transform: `translateY(-${window.innerHeight + 100}px) rotate(405deg)`, opacity: 0 }
-          ], {
-            duration: Math.random() * 4000 + 3000,
-            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-          }).onfinish = () => heart.remove();
-        }, i * 300);
+    function explodeHearts(x, y) {
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+
+        const size = Math.random() * 16 + 10;
+        heart.style.width = size + "px";
+        heart.style.height = size + "px";
+        heart.style.left = x + "px";
+        heart.style.top = y + "px";
+        heart.style.opacity = 0.8;
+
+        document.body.appendChild(heart);
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 200 + 100;
+
+        heart.animate([
+          { transform: "translate(0, 0) rotate(45deg)", opacity: 1 },
+          {
+            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) rotate(405deg)`,
+            opacity: 0
+          }
+        ], {
+          duration: 1200,
+          easing: "ease-out"
+        }).onfinish = () => heart.remove();
       }
     }
 
+    function heartShapeBurst() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      for (let t = 0; t < Math.PI * 2; t += 0.22) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y =
+          13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t);
+
+        const heart = document.createElement("div");
+        heart.className = "heart";
+
+        // 🔥 Bigger + brighter
+        const size = 22;
+        heart.style.width = size + "px";
+        heart.style.height = size + "px";
+
+        heart.style.left = centerX + x * 10 + "px";
+        heart.style.top = centerY - y * 10 + "px";
+
+        // 💖 Brighter color override
+        heart.style.background = "#ff1f68";
+        heart.style.opacity = 1;
+
+        // ✨ Glow
+        heart.style.filter = "drop-shadow(0 0 10px rgba(255, 31, 104, 0.8))";
+
+        document.body.appendChild(heart);
+
+        heart.animate(
+          [
+            { transform: "scale(0) rotate(45deg)", opacity: 0 },
+            { transform: "scale(1.4) rotate(45deg)", opacity: 1 },
+            { transform: "scale(1.6) rotate(45deg)", opacity: 1 },
+            { transform: "scale(1) rotate(45deg)", opacity: 0 }
+          ],
+          {
+            duration: 2000,
+            easing: "ease-in-out"
+          }
+        ).onfinish = () => heart.remove();
+      }
+    }
+
+    /* ---------- FLOATING HEARTS ---------- */
+
+    function createFloatingHearts() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+
+      // Random horizontal start position
+      heart.style.left = Math.random() * 100 + 'vw';
+
+      // Random size
+      const size = Math.random() * 18 + 12;
+      heart.style.width = size + 'px';
+      heart.style.height = size + 'px';
+
+      // Random opacity for depth
+      heart.style.opacity = Math.random() * 0.4 + 0.15;
+
+      // Start slightly below screen
+      heart.style.top = '110vh';
+
+      document.body.appendChild(heart);
+
+      const drift = (Math.random() - 0.5) * 200; // sideways drift
+      const duration = Math.random() * 5000 + 5000;
+
+      heart.animate([
+        {
+          transform: `translate(0px, 0px) rotate(45deg)`
+        },
+        {
+          transform: `translate(${drift}px, -120vh) rotate(405deg)`
+        }
+      ], {
+        duration: duration,
+        easing: 'linear'
+      }).onfinish = () => heart.remove();
+    }
+
     // Start hearts
-    createFloatingHearts();
-    setInterval(createFloatingHearts, 10000);
+    let heartInterval = 800;
+    let heartTimer = null;
+
+    function startHearts() {
+      if (heartTimer) clearInterval(heartTimer);
+      heartTimer = setInterval(createFloatingHearts, heartInterval);
+    }
 
     /* ---------- YES BUTTON GROWS ---------- */
     function growYes() {
-      yesScale = Math.min(2.2, yesScale + 0.1);
-      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
-    }
+  yesScale = Math.min(2.8, yesScale + 0.12);
+
+  yesBtn.style.transform = `scale(${yesScale})`;
+  yesBtn.style.padding = `${16 + yesScale * 6}px ${24 + yesScale * 10}px`;
+  yesBtn.style.fontSize = `${18 + yesScale * 4}px`;
+}
 
     /* ---------- NO BUTTON RUNS AWAY ---------- */
     function clamp(n, min, max) {
@@ -497,6 +596,16 @@
       messageIndex = (messageIndex + 1) % noMessages.length;
     });
 
+    noBtn.addEventListener("mouseenter", () => {
+      heartInterval = 200; // FAST hearts
+      startHearts();
+    });
+
+    noBtn.addEventListener("mouseleave", () => {
+      heartInterval = 800; // back to calm
+      startHearts();
+    });
+
     /* ---------- MUSIC FUNCTION ---------- */
     function playMusic() {
       bgMusic.volume = 0.5;
@@ -517,11 +626,22 @@
       hint.style.display = "none";
       result.style.display = "block";
       
+      const rect = yesBtn.getBoundingClientRect();
+      explodeHearts(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+        rect.bottom + rect.height
+      );
+      
       // Change the result text
       result.querySelector('h2').innerHTML = `Au Nakhokeee! 🕺🏽🎉<br><small style="font-size: 20px;">You've made my day! 💝</small>`;
       
       resizeConfettiCanvas();
       fullScreenConfetti();
+
+      setTimeout(() => {
+        heartShapeBurst();
+      }, 400);
       
       // Stop nervous movement
       if (nervousInterval) clearInterval(nervousInterval);
