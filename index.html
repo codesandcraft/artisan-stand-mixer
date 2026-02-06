@@ -587,7 +587,11 @@
 
     noBtn.addEventListener("click", e => {
       e.preventDefault();
-      hint.textContent = "I knew you'd come around! 😄";
+
+      hint.textContent = noMessages[messageIndex];
+      messageIndex = (messageIndex + 1) % noMessages.length;
+
+      growYes(); // keep the pressure 😈
     });
 
     // Add messages when hovering over "No"
@@ -715,4 +719,5 @@
   </script>
 </body>
 </html>
+
 
